@@ -11,12 +11,12 @@
     },
     "autoload": {
         "psr-4": {
-            "LineBotCallback\\": "src"
+            "line-bot-callback\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LineBotCallback\\Test\\": "tests",
+            "line-bot-callback\\Test\\": "tests",
             "Cake\\Test\\": "./vendor/cakephp/cakephp/tests"
         }
     }
