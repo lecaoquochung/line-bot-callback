@@ -1,13 +1,23 @@
 {
     "name": "lecaoquochung/line-bot-callback",
-    "description": "LineBotCallback plugin for CakePHP",
+    "description": "Line Bot API Callback plugin for CakePHP",
     "type": "cakephp-plugin",
+    "homepage": "https://github.com/lecaoquochung/line-bot-callback",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "lehung",
+            "email": "lecaoquochung@gmail.com"
+        }
+    ],
     "require": {
         "php": ">=5.4.16",
         "cakephp/cakephp": "~3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "*"
+        "phpunit/phpunit": "*",
+        "phpmd/phpmd": "~2.4",
+        "squizlabs/php_codesniffer": "~2.6"
     },
     "autoload": {
         "psr-4": {
