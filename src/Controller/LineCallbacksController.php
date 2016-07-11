@@ -2,7 +2,9 @@
 namespace LineBotCallback\Controller;
 
 use LineBotCallback\Controller\AppController;
-
+use Cake\Event\Event;
+use Cake\Network\Http\Client;
+use Cake\Core\Configure;
 /**
  * LineCallbacks Controller
  *
@@ -10,7 +12,16 @@ use LineBotCallback\Controller\AppController;
  */
 class LineCallbacksController extends AppController
 {
-
+    /**
+     * beforeFilter method
+     *
+     * @return void Redirects on successful beforeFilter, renders view otherwise.
+     */
+    public function beforeFilter(Event $event) {
+        parent::beforeFilter($event);
+        $this->Auth->allow(['callbacks','replyCallbacks']);
+    }
+	
     /**
      * Index method
      *
@@ -105,4 +116,64 @@ class LineCallbacksController extends AppController
         }
         return $this->redirect(['action' => 'index']);
     }
+	
+	public function callbacks(){
+		$this->autoRender = false;
+		$requestBodyString = file_get_contents('php://input');
+		if(!empty($requestBodyString)){
+			$lineCallback = $this->LineCallbacks->newEntity();
+			$data['result'] = $requestBodyString;
+			$data['date'] = date('Y-m-d');
+			$lineCallback = $this->LineCallbacks->patchEntity($lineCallback, $data);
+			$this->LineCallbacks->save($lineCallback);
+			
+			$this->replyCallbacks($requestBodyString);
+		}
+	}
+	
+	public function replyCallbacks($requestBodyString){
+		$requestBodyObject = json_decode($requestBodyString);
+		$requestContent = $requestBodyObject->result{0}->content;
+		$requestText = $requestContent->text;
+		$requestFrom = $requestContent->from;
+		$toType = $requestContent->toType;
+		$contentType = $requestContent->contentType;
+		$eventType = $requestBodyObject->result{0}->eventType;
+		$fromChannel = $requestBodyObject->result{0}->fromChannel;
+
+		  // LINE BOT API 経由でユーザに渡すことになるJSONデータを作成。
+		  // to にはレスポンス先ユーザの MID を配列の形で指定。
+		  // toChannel、eventTypeは固定の数値・文字列を指定。
+		  // contentType は、テキストを返す場合は 1。
+		  // toType は、ユーザへのレスポンスの場合は 1。
+		  // text には、ユーザに返すテキストを指定。
+		
+		// LINE BOT API へのリクエストを作成して実行
+		$configLineBot = Configure::read('LineBot');		
+		$responseMessage = json_encode([
+				'to' => [$requestFrom],
+				'toChannel' => $fromChannel,
+				'eventType' => $eventType,
+				'content' => [
+					'contentType' => $contentType,
+					'toType' => $toType,
+					'text' => "はじめまして。\nよろしくお願いします。"
+				]
+			]);
+			
+
+		$http = new Client();
+		$response = $http->post(
+			'https://trialbot-api.line.me/v1/events',
+			$responseMessage,
+			[
+				'headers' => [
+					'Content-Type' => 'application/json; charset=UTF-8',
+					'X-Line-ChannelID'=> $configLineBot['channelId'],
+					'X-Line-ChannelSecret' => $configLineBot['channelSecret'],
+					'X-Line-Trusted-User-With-ACL' => $configLineBot['mid']
+				]
+			]
+		);
+	}
 }
