@@ -152,11 +152,15 @@ class LineCallbacksController extends AppController
 		$configLineBot = Configure::read('LineBot');		
 		$responseMessage = json_encode([
 				'to' => [$requestFrom],
-				'toChannel' => $fromChannel,
-				'eventType' => $eventType,
+// 				'toChannel' => $fromChannel,
+// 				'eventType' => $eventType,
+				'toChannel' => 1383378250,
+				'eventType' => 138311608800106203,
 				'content' => [
-					'contentType' => $contentType,
-					'toType' => $toType,
+// 					'contentType' => $contentType,
+// 					'toType' => $toType,
+						'contentType' => 1,
+						'toType' => 1,
 					'text' => "はじめまして。\nよろしくお願いします。"
 				]
 			]);
